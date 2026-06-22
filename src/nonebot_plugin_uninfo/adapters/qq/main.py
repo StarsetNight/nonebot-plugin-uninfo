@@ -5,6 +5,7 @@ from nonebot.adapters.qq.event import (
     DirectMessageCreateEvent,
     DirectMessageDeleteEvent,
     Event,
+    GroupMessageCreateEvent,
     GroupAtMessageCreateEvent,
     GuildEvent,
     GuildMemberEvent,
@@ -20,7 +21,7 @@ from nonebot_plugin_uninfo.fetch import InfoFetcher as BaseInfoFetcher
 from nonebot_plugin_uninfo.model import Member, Role, Scene, SceneType, User
 
 ROLES = {
-    "4": ("OWNER", 100, "创建者"),
+    "4": ("OWNER", 640, "创建者"),
     "2": ("ADMINISTRATOR", 10, "管理员"),
     "5": ("CHANNEL_ADMINISTRATOR", 8, "子频道管理员"),
     "1": ("MEMBER", 1, "成员"),
@@ -124,7 +125,7 @@ class InfoFetcher(BaseInfoFetcher):
         return User(
             id=user_id,
             name="",
-            avatar=f"https://q.qlogo.cn/qqapp/{bot.bot_info.id}/{user_id}/100",
+            avatar=f"https://q.qlogo.cn/qqapp/{bot.bot_info.id}/{user_id}/640",
         )
 
     async def query_scene(self, bot: Bot, scene_type: SceneType, scene_id: str, *, parent_scene_id: str | None = None):
@@ -160,7 +161,7 @@ class InfoFetcher(BaseInfoFetcher):
                 User(
                     id=user_id,
                     name="",
-                    avatar=f"https://q.qlogo.cn/qqapp/{bot.bot_info.id}/{user_id}/100",
+                    avatar=f"https://q.qlogo.cn/qqapp/{bot.bot_info.id}/{user_id}/640",
                 ),
                 nick="",
             )
@@ -172,7 +173,7 @@ class InfoFetcher(BaseInfoFetcher):
         if scene_type is not None and scene_type < SceneType.GUILD:
             return
 
-        guilds = await bot.guilds(limit=100)
+        guilds = await bot.guilds(limit=640)
         while guilds:
             for guild in guilds:
                 if parent_scene_id is None or guild.id == parent_scene_id:
@@ -189,9 +190,9 @@ class InfoFetcher(BaseInfoFetcher):
                             name=channel.name,
                             parent=_guild,
                         )
-            if len(guilds) < 100:
+            if len(guilds) < 640:
                 break
-            guilds = await bot.guilds(limit=100, after=guilds[-1].id)
+            guilds = await bot.guilds(limit=640, after=guilds[-1].id)
 
     def query_members(self, bot: Bot, scene_type: SceneType, parent_scene_id: str):
         raise NotImplementedError
@@ -243,14 +244,14 @@ async def _(bot: Bot, event: InteractionCreateEvent):
             "user_id": event.user_openid,
             "name": "",
             "nickname": "",
-            "avatar": f"https://q.qlogo.cn/qqapp/{bot.bot_info.id}/{event.user_openid}/100",
+            "avatar": f"https://q.qlogo.cn/qqapp/{bot.bot_info.id}/{event.user_openid}/640",
         }
     if event.chat_type == 1:
         return {
             "user_id": event.group_member_openid,
             "name": "",
             "nickname": "",
-            "avatar": f"https://q.qlogo.cn/qqapp/{bot.bot_info.id}/{event.group_member_openid}/100",
+            "avatar": f"https://q.qlogo.cn/qqapp/{bot.bot_info.id}/{event.group_member_openid}/640",
             "group_id": event.group_openid,
         }
     base = {
@@ -285,19 +286,19 @@ async def _(bot: Bot, event: InteractionCreateEvent):
 async def _(bot: Bot, event: C2CMessageCreateEvent):
     return {
         "user_id": event.author.user_openid,
-        "name": "",
+        "name": event.author.username,
         "nickname": "",
-        "avatar": f"https://q.qlogo.cn/qqapp/{bot.bot_info.id}/{event.author.user_openid}/100",
+        "avatar": f"https://q.qlogo.cn/qqapp/{bot.bot_info.id}/{event.author.user_openid}/640",
     }
 
 
 @fetcher.supply
-async def _(bot: Bot, event: GroupAtMessageCreateEvent):
+async def _(bot: Bot, event: GroupMessageCreateEvent):
     return {
         "user_id": event.author.member_openid,
-        "name": "",
+        "name": event.author.username,
         "nickname": "",
-        "avatar": f"https://q.qlogo.cn/qqapp/{bot.bot_info.id}/{event.author.member_openid}/100",
+        "avatar": f"https://q.qlogo.cn/qqapp/{bot.bot_info.id}/{event.author.member_openid}/640",
         "group_id": event.group_openid,
     }
 
